@@ -27,48 +27,33 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film postFilm(@Valid @RequestBody Film film) {
-        try {
-            if (!mapFilms.containsKey(film.getId())) {
-                id++;
-                film.setId(id);
-                return validation(film);
-            } else {
-                throw new ValidException();
-            }
-        } catch (ValidException e) {
-            e.getMessage();
+        if (!mapFilms.containsKey(film.getId())) {
+            id++;
+            film.setId(id);
+            return validation(film);
+        } else {
+            throw new ValidException();
         }
-        return null;
     }
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        try {
-            if (mapFilms.containsKey(film.getId())) {
-                return validation(film);
-            } else {
-                throw new ValidException();
-            }
-        } catch (ValidException e) {
-            e.getMessage();
+        if (mapFilms.containsKey(film.getId())) {
+            return validation(film);
+        } else {
+            throw new ValidException();
         }
-        return null;
     }
 
     private Film validation(Film film) throws ValidException {
-        try {
-            if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
-                    film.getDescription().length() <= 200 &&
-                    film.getDuration() > 0) {
-                mapFilms.put(film.getId(), film);
-                log.info("Фильм обновлен/создан {}", film);
-                return mapFilms.get(film.getId());
-            } else {
-                throw new ValidException();
-            }
-        } catch (ValidException e) {
-            e.getMessage();
+        if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
+                film.getDescription().length() <= 200 &&
+                film.getDuration() > 0) {
+            mapFilms.put(film.getId(), film);
+            log.info("Фильм обновлен/создан {}", film);
+            return mapFilms.get(film.getId());
+        } else {
+            throw new ValidException();
         }
-        return null;
     }
 }

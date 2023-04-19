@@ -15,8 +15,6 @@ import java.util.Map;
 @Slf4j
 @RestController
 public class UserController {
-    //При ошибках не возвращаю коды, но вроде как это должны дальше разбирать.
-    //Поэтому не стал заморачиваться и гуглить :)
     private int id;
     Map<Integer, User> mapUsers = new HashMap<>();
 
@@ -27,51 +25,37 @@ public class UserController {
 
     @PostMapping("/users")
     public User postUser(@Valid @RequestBody User user) {
-        try {
-            if (!mapUsers.containsKey(user.getId())) {
-                id++;
-                user.setId(id);
-                return validation(user);
-            } else {
-                throw new ValidException();
-            }
-        } catch (ValidException e) {
-            e.getMessage();
+        if (!mapUsers.containsKey(user.getId())) {
+            id++;
+            user.setId(id);
+            return validation(user);
+        } else {
+            throw new ValidException();
         }
-        return null;
     }
 
     @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        try {
-            if (mapUsers.containsKey(user.getId())) {
-                return validation(user);
-            } else {
-                throw new ValidException();
-            }
-        } catch (ValidException e) {
-            e.getMessage();
+        if (mapUsers.containsKey(user.getId())) {
+            return validation(user);
+        } else {
+            throw new ValidException();
         }
-        return null;
+
     }
 
     private User validation(User user) throws NullPointerException {
-        try {
-            if (user.getBirthday().isBefore(LocalDate.now())
-                    && user.getEmail().contains("@") &&
-                    !user.getLogin().isBlank()) {
-                if (user.getName() == null) {
-                    user.setName(user.getLogin());
-                }
-                log.info("Пользователь обновлен/создан {}", user);
-                mapUsers.put(user.getId(), user);
-                return mapUsers.get(user.getId());
-            } else {
-                throw new ValidException();
+        if (user.getBirthday().isBefore(LocalDate.now())
+                && user.getEmail().contains("@") &&
+                !user.getLogin().isBlank()) {
+            if (user.getName() == null) {
+                user.setName(user.getLogin());
             }
-        } catch (ValidException e) {
-            e.getMessage();
+            log.info("Пользователь обновлен/создан {}", user);
+            mapUsers.put(user.getId(), user);
+            return mapUsers.get(user.getId());
+        } else {
+            throw new ValidException();
         }
-        return null;
     }
 }
