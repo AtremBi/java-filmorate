@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping("/users")
     public User postUser(@Valid @RequestBody User user) {
-        if(validation(user)){
+        if (validation(user)) {
             if (!mapUsers.containsKey(user.getId())) {
                 id++;
                 user.setId(id);
@@ -41,7 +41,7 @@ public class UserController {
 
     @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        if (validation(user)){
+        if (validation(user)) {
             if (mapUsers.containsKey(user.getId())) {
                 mapUsers.put(user.getId(), user);
                 return mapUsers.get(user.getId());

@@ -27,7 +27,7 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film postFilm(@Valid @RequestBody Film film) {
-        if (isValidation(film)){
+        if (isValidation(film)) {
             if (!mapFilms.containsKey(film.getId())) {
                 id++;
                 film.setId(id);
@@ -44,7 +44,7 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        if(isValidation(film)){
+        if (isValidation(film)) {
             if (mapFilms.containsKey(film.getId())) {
                 mapFilms.put(film.getId(), film);
                 return mapFilms.get(film.getId());
