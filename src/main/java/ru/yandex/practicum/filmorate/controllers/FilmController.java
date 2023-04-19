@@ -21,12 +21,12 @@ public class FilmController {
     Map<Integer, Film> mapFilms = new HashMap<>();
 
     @GetMapping("/films")
-    public List<Film> getFilms(){
+    public List<Film> getFilms() {
         return new ArrayList<>(mapFilms.values());
     }
 
     @PostMapping("/films")
-    public Film postFilm(@Valid @RequestBody Film film){
+    public Film postFilm(@Valid @RequestBody Film film) {
         try {
             if (!mapFilms.containsKey(film.getId())) {
                 id++;
@@ -42,24 +42,24 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film putFilm(@Valid @RequestBody Film film){
+    public Film putFilm(@Valid @RequestBody Film film) {
         try {
-            if (mapFilms.containsKey(film.getId())){
+            if (mapFilms.containsKey(film.getId())) {
                 return validation(film);
             } else {
                 throw new ValidException();
             }
-        } catch (ValidException e){
+        } catch (ValidException e) {
             e.getMessage();
         }
         return null;
     }
 
-    private Film validation(Film film) throws ValidException{
+    private Film validation(Film film) throws ValidException {
         try {
             if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
-            film.getDescription().length() <= 200 &&
-            film.getDuration() > 0) {
+                    film.getDescription().length() <= 200 &&
+                    film.getDuration() > 0) {
                 mapFilms.put(film.getId(), film);
                 log.info("Фильм обновлен/создан {}", film);
                 return mapFilms.get(film.getId());

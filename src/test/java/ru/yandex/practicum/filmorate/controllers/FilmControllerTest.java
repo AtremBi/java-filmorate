@@ -36,42 +36,42 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void length_description_200_symbols_is_valid(){
+    public void length_description_200_symbols_is_valid() {
         film.setDescription(RandomStringUtils.random(200));
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void length_description_201_symbols_is_not_valid(){
+    public void length_description_201_symbols_is_not_valid() {
         film.setDescription(RandomStringUtils.random(201));
         filmController.postFilm(film);
         assertTrue(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void release_date_1895_not_valid(){
+    public void release_date_1895_not_valid() {
         film.setReleaseDate(LocalDate.of(1895, DECEMBER, 28));
         filmController.postFilm(film);
         assertTrue(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void release_date_1896_is_valid(){
+    public void release_date_1896_is_valid() {
         film.setReleaseDate(LocalDate.of(1896, DECEMBER, 28));
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void duration_is_negative_not_valid(){
+    public void duration_is_negative_not_valid() {
         film.setDuration(-1);
         filmController.postFilm(film);
         assertTrue(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void duration_is_negative_is_valid(){
+    public void duration_is_negative_is_valid() {
         film.setDuration(1);
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());

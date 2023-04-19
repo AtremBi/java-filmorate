@@ -14,7 +14,7 @@ public class UserControllerTest {
     private UserController userController;
 
     @BeforeEach
-    public void setUp(){
+    public void setUp() {
         userController = new UserController();
         user = User.builder()
                 .email("asd@sad.ru")
@@ -25,38 +25,38 @@ public class UserControllerTest {
     }
 
     @Test
-    public void email_without_dog_not_valid(){
+    public void email_without_dog_not_valid() {
         user.setEmail("12323");
         userController.postUser(user);
         assertTrue(userController.getUsers().isEmpty());
     }
 
     @Test
-    public void email_with_dog_is_valid(){
+    public void email_with_dog_is_valid() {
         userController.postUser(user);
         assertFalse(userController.getUsers().isEmpty());
     }
 
     @Test
-    public void email_is_empty_not_valid(){
+    public void email_is_empty_not_valid() {
         assertThrows(NullPointerException.class, () -> user.setEmail(null));
     }
 
     @Test
-    public void login_with_whitespace_not_valid(){
+    public void login_with_whitespace_not_valid() {
         user.setLogin("asd asd");
         assertTrue(userController.getUsers().isEmpty());
     }
 
     @Test
-    public void empty_name_is_replaced_with_a_login(){
+    public void empty_name_is_replaced_with_a_login() {
         user.setName(null);
         userController.postUser(user);
         assertEquals(user.getLogin(), userController.getUsers().get(0).getName());
     }
 
     @Test
-    public void date_of_birth_cannot_be_in_the_future(){
+    public void date_of_birth_cannot_be_in_the_future() {
         user.setBirthday(LocalDate.of(2895, DECEMBER, 28));
         userController.postUser(user);
         assertTrue(userController.getUsers().isEmpty());

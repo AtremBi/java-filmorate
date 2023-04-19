@@ -21,12 +21,12 @@ public class UserController {
     Map<Integer, User> mapUsers = new HashMap<>();
 
     @GetMapping("/users")
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return new ArrayList<>(mapUsers.values());
     }
 
     @PostMapping("/users")
-    public User postUser(@Valid @RequestBody User user){
+    public User postUser(@Valid @RequestBody User user) {
         try {
             if (!mapUsers.containsKey(user.getId())) {
                 id++;
@@ -42,25 +42,25 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public User putUser(@Valid @RequestBody User user){
+    public User putUser(@Valid @RequestBody User user) {
         try {
-            if (mapUsers.containsKey(user.getId())){
+            if (mapUsers.containsKey(user.getId())) {
                 return validation(user);
             } else {
                 throw new ValidException();
             }
-        } catch (ValidException e){
+        } catch (ValidException e) {
             e.getMessage();
         }
         return null;
     }
 
-    private User validation(User user) throws NullPointerException{
+    private User validation(User user) throws NullPointerException {
         try {
             if (user.getBirthday().isBefore(LocalDate.now())
-            && user.getEmail().contains("@") &&
-            !user.getLogin().isBlank()) {
-                if (user.getName() == null){
+                    && user.getEmail().contains("@") &&
+                    !user.getLogin().isBlank()) {
+                if (user.getName() == null) {
                     user.setName(user.getLogin());
                 }
                 log.info("Пользователь обновлен/создан {}", user);
