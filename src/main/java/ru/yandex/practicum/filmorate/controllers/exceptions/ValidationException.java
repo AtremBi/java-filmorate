@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Slf4j
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class ValidException extends IllegalArgumentException {
+public class ValidationException extends IllegalArgumentException {
 
-    public ValidException() {
+    public ValidationException() {
         super("Не пройдена валидация");
         log.error("Не пройдена валидация");
     }

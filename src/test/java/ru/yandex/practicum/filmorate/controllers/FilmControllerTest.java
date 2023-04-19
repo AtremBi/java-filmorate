@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidException;
+import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -41,13 +41,13 @@ public class FilmControllerTest {
     @Test
     public void length_description_201_symbols_is_not_valid() {
         film.setDescription(RandomStringUtils.random(201));
-        assertThrows(ValidException.class, () -> filmController.postFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test
     public void release_date_1895_not_valid() {
         film.setReleaseDate(LocalDate.of(1895, DECEMBER, 28));
-        assertThrows(ValidException.class, () -> filmController.postFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class FilmControllerTest {
     @Test
     public void duration_is_negative_not_valid() {
         film.setDuration(-1);
-        assertThrows(ValidException.class, () -> filmController.postFilm(film));
+        assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test

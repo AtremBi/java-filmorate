@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidException;
+import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
@@ -18,7 +18,7 @@ import static java.time.Month.DECEMBER;
 @RestController
 public class FilmController {
     private int id;
-    Map<Integer, Film> mapFilms = new HashMap<>();
+    private Map<Integer, Film> mapFilms = new HashMap<>();
 
     @GetMapping("/films")
     public List<Film> getFilms() {
@@ -27,33 +27,42 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film postFilm(@Valid @RequestBody Film film) {
-        if (!mapFilms.containsKey(film.getId())) {
-            id++;
-            film.setId(id);
-            return validation(film);
+        if (isValidation(film)){
+            if (!mapFilms.containsKey(film.getId())) {
+                id++;
+                film.setId(id);
+                mapFilms.put(film.getId(), film);
+                log.info("Фильм обновлен/создан {}", film);
+                return mapFilms.get(film.getId());
+            } else {
+                throw new ValidationException();
+            }
         } else {
-            throw new ValidException();
+            throw new ValidationException();
         }
     }
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        if (mapFilms.containsKey(film.getId())) {
-            return validation(film);
+        if(isValidation(film)){
+            if (mapFilms.containsKey(film.getId())) {
+                mapFilms.put(film.getId(), film);
+                return mapFilms.get(film.getId());
+            } else {
+                throw new ValidationException();
+            }
         } else {
-            throw new ValidException();
+            throw new ValidationException();
         }
     }
 
-    private Film validation(Film film) throws ValidException {
+    private boolean isValidation(Film film) throws ValidationException {
         if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
                 film.getDescription().length() <= 200 &&
                 film.getDuration() > 0) {
-            mapFilms.put(film.getId(), film);
-            log.info("Фильм обновлен/создан {}", film);
-            return mapFilms.get(film.getId());
+            return true;
         } else {
-            throw new ValidException();
+            throw new ValidationException();
         }
     }
 }

@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidException;
+import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ public class UserControllerTest {
     @Test
     public void email_without_dog_not_valid() {
         user.setEmail("12323");
-        assertThrows(ValidException.class, () -> userController.postUser(user));
+        assertThrows(ValidationException.class, () -> userController.postUser(user));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class UserControllerTest {
     @Test
     public void date_of_birth_cannot_be_in_the_future() {
         user.setBirthday(LocalDate.of(2895, DECEMBER, 28));
-        assertThrows(ValidException.class, () -> userController.postUser(user));
+        assertThrows(ValidationException.class, () -> userController.postUser(user));
     }
 
 }
