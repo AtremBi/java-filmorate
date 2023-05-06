@@ -1,68 +1,77 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static java.time.Month.DECEMBER;
 
 @Slf4j
 @RestController
 public class FilmController {
-    private int id;
-    private Map<Integer, Film> mapFilms = new HashMap<>();
+    private final FilmService filmService;
+    private final FilmStorage filmStorage;
+
+    @Autowired
+    public FilmController(FilmService filmService, FilmStorage filmStorage){
+        this.filmService = filmService;
+        this.filmStorage = filmStorage;
+    }
 
     @GetMapping("/films")
     public List<Film> getFilms() {
-        return new ArrayList<>(mapFilms.values());
+        return new ArrayList<>(filmStorage.getFilms().values());
+    }
+
+    @GetMapping("/films/{filmId}")
+    public Film getFilmById(@PathVariable int filmId) {
+        if (filmStorage.getFilms().containsKey(filmId)){
+            return filmStorage.getFilms().get(filmId);
+        } else {
+            throw new NotFoundException("Фильм не найден");
+        }
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count){
+        return filmService.getFamousFilms(count);
     }
 
     @PostMapping("/films")
     public Film postFilm(@Valid @RequestBody Film film) {
-        if (isValidation(film)) {
-            if (!mapFilms.containsKey(film.getId())) {
-                id++;
-                film.setId(id);
-                mapFilms.put(film.getId(), film);
-                log.info("Фильм обновлен/создан {}", film);
-                return mapFilms.get(film.getId());
-            } else {
-                throw new ValidationException();
-            }
-        } else {
-            throw new ValidationException();
-        }
+        return filmStorage.addFilm(film);
     }
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        if (isValidation(film)) {
-            if (mapFilms.containsKey(film.getId())) {
-                mapFilms.put(film.getId(), film);
-                return mapFilms.get(film.getId());
-            } else {
-                throw new ValidationException();
-            }
+        return filmStorage.updateFilm(film);
+    }
+
+    @PutMapping("/films/{id}/like/{userId}")
+    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)){
+            return filmService.addLike(id, userId);
+        } else if (!filmStorage.getFilms().containsKey(id)) {
+            throw new NotFoundException("Фильм не найден");
         } else {
-            throw new ValidationException();
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 
-    private boolean isValidation(Film film) throws ValidationException {
-        if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
-                film.getDescription().length() <= 200 &&
-                film.getDuration() > 0) {
-            return true;
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable int id, @PathVariable int userId){
+        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)){
+            return filmService.deleteLike(id, userId);
+        } else if (!filmStorage.getFilms().containsKey(id)) {
+            throw new NotFoundException("Фильм не найден");
         } else {
-            throw new ValidationException();
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 }

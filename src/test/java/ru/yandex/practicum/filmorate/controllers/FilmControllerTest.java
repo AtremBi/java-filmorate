@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import org.apache.commons.lang3.RandomStringUtils;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -17,7 +19,9 @@ public class FilmControllerTest {
 
     @BeforeEach
     public void setUp() {
-        filmController = new FilmController();
+        InMemoryFilmStorage storage = new InMemoryFilmStorage();
+        FilmService service = new FilmService(storage);
+        filmController = new FilmController(service, storage);
         film = Film.builder()
                 .name("name")
                 .description("desc")
