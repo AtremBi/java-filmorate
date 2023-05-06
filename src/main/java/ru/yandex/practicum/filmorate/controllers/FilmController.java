@@ -19,7 +19,7 @@ public class FilmController {
     private final FilmStorage filmStorage;
 
     @Autowired
-    public FilmController(FilmService filmService, FilmStorage filmStorage){
+    public FilmController(FilmService filmService, FilmStorage filmStorage) {
         this.filmService = filmService;
         this.filmStorage = filmStorage;
     }
@@ -31,7 +31,7 @@ public class FilmController {
 
     @GetMapping("/films/{filmId}")
     public Film getFilmById(@PathVariable int filmId) {
-        if (filmStorage.getFilms().containsKey(filmId)){
+        if (filmStorage.getFilms().containsKey(filmId)) {
             return filmStorage.getFilms().get(filmId);
         } else {
             throw new NotFoundException("Фильм не найден");
@@ -39,7 +39,7 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count){
+    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count) {
         return filmService.getFamousFilms(count);
     }
 
@@ -55,7 +55,7 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)){
+        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)) {
             return filmService.addLike(id, userId);
         } else if (!filmStorage.getFilms().containsKey(id)) {
             throw new NotFoundException("Фильм не найден");
@@ -65,8 +65,8 @@ public class FilmController {
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
-    public Film deleteLike(@PathVariable int id, @PathVariable int userId){
-        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)){
+    public Film deleteLike(@PathVariable int id, @PathVariable int userId) {
+        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)) {
             return filmService.deleteLike(id, userId);
         } else if (!filmStorage.getFilms().containsKey(id)) {
             throw new NotFoundException("Фильм не найден");

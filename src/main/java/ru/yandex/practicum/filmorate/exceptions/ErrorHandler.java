@@ -12,13 +12,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleServerError(final ValidationException e ) {
+    public Map<String, String> handleServerError(final ValidationException e) {
         return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleBadRequest(final NotFoundException e ) {
+    public Map<String, String> handleBadRequest(final NotFoundException e) {
         return Map.of("error", e.getMessage());
     }
 }

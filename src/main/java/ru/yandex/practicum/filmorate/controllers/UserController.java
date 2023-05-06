@@ -20,7 +20,7 @@ public class UserController {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserController(UserService userService, UserStorage userStorage){
+    public UserController(UserService userService, UserStorage userStorage) {
         this.userService = userService;
         this.userStorage = userStorage;
     }
@@ -32,7 +32,7 @@ public class UserController {
 
     @GetMapping("/users/{id}")
     public User getUsers(@PathVariable int id) {
-        if (userStorage.getUsers().containsKey(id)){
+        if (userStorage.getUsers().containsKey(id)) {
             return userStorage.getUsers().get(id);
         } else {
             throw new NotFoundException("Пользователь не найден");
@@ -40,10 +40,10 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/friends")
-    public List<User> getFriends(@PathVariable int id){
-        if (userStorage.getUsers().containsKey(id)){
+    public List<User> getFriends(@PathVariable int id) {
+        if (userStorage.getUsers().containsKey(id)) {
             List<User> users = new ArrayList<>();
-            for (Integer friendId:userStorage.getUsers().get(id).getFriends()) {
+            for (Integer friendId : userStorage.getUsers().get(id).getFriends()) {
                 users.add(userStorage.getUsers().get(friendId));
             }
             return users;
@@ -53,10 +53,10 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId){
-        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(otherId)){
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(otherId)) {
             return userService.getCommonFriends(id, otherId);
-        } else if (!userStorage.getUsers().containsKey(id)){
+        } else if (!userStorage.getUsers().containsKey(id)) {
             throw new NotFoundException("Пользователь не найден");
         } else {
             throw new NotFoundException("Друг не найден");
@@ -74,10 +74,10 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    public User addFriends (@PathVariable int id, @PathVariable int friendId) {
-        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(friendId)){
+    public User addFriends(@PathVariable int id, @PathVariable int friendId) {
+        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(friendId)) {
             return userService.addFriend(id, friendId);
-        } else if (!userStorage.getUsers().containsKey(id)){
+        } else if (!userStorage.getUsers().containsKey(id)) {
             throw new NotFoundException("Пользователь не найден");
         } else {
             throw new NotFoundException("Друг не найден");
@@ -85,10 +85,10 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
-    private User deleteFriend(@PathVariable int id, @PathVariable int friendId){
-        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(friendId)){
+    private User deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+        if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(friendId)) {
             return userService.deleteFriend(id, friendId);
-        } else if (!userStorage.getUsers().containsKey(id)){
+        } else if (!userStorage.getUsers().containsKey(id)) {
             throw new NotFoundException("Пользователь не найден");
         } else {
             throw new NotFoundException("Друг не найден");
