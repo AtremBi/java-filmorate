@@ -55,12 +55,10 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)) {
+        if (filmStorage.getFilms().containsKey(id)) {
             return filmService.addLike(id, userId);
-        } else if (!filmStorage.getFilms().containsKey(id)) {
-            throw new NotFoundException("Фильм не найден");
         } else {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException("Фильм не найден");
         }
     }
 
