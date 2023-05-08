@@ -20,7 +20,7 @@ public class UserControllerTest {
     public void setUp() {
         InMemoryUserStorage storage = new InMemoryUserStorage();
         UserService service = new UserService(storage);
-        userController = new UserController(service, storage);
+        userController = new UserController(service);
         user = User.builder()
                 .email("asd@sad.ru")
                 .login("asdada")

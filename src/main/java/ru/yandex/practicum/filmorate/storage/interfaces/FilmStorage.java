@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.interfaces;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Map;
+import java.util.List;
 
 @Component
 public interface FilmStorage {
@@ -11,5 +11,9 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    Map<Integer, Film> getFilms();
+    List<Film> getFilms();
+
+    boolean checkFilm(int id);
+
+    Film getFilmById(int id);
 }

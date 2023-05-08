@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -14,28 +12,18 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
-
-    @Autowired
-    public FilmController(FilmService filmService, FilmStorage filmStorage) {
-        this.filmService = filmService;
-        this.filmStorage = filmStorage;
-    }
 
     @GetMapping("/films")
     public List<Film> getFilms() {
-        return new ArrayList<>(filmStorage.getFilms().values());
+        return new ArrayList<>(filmService.getFilms());
     }
 
     @GetMapping("/films/{filmId}")
     public Film getFilmById(@PathVariable int filmId) {
-        if (filmStorage.getFilms().containsKey(filmId)) {
-            return filmStorage.getFilms().get(filmId);
-        } else {
-            throw new NotFoundException("Фильм не найден");
-        }
+        return filmService.getFilmById(filmId);
     }
 
     @GetMapping("/films/popular")
@@ -45,31 +33,21 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film postFilm(@Valid @RequestBody Film film) {
-        return filmStorage.addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping("/films")
     public Film putFilm(@Valid @RequestBody Film film) {
-        return filmStorage.updateFilm(film);
+        return filmService.updateFilm(film);
     }
 
     @PutMapping("/films/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        if (filmStorage.getFilms().containsKey(id)) {
-            return filmService.addLike(id, userId);
-        } else {
-            throw new NotFoundException("Фильм не найден");
-        }
+        return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public Film deleteLike(@PathVariable int id, @PathVariable int userId) {
-        if (filmStorage.getFilms().containsKey(id) && filmStorage.getFilms().get(id).getLikes().contains(userId)) {
-            return filmService.deleteLike(id, userId);
-        } else if (!filmStorage.getFilms().containsKey(id)) {
-            throw new NotFoundException("Фильм не найден");
-        } else {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        return filmService.deleteLike(id, userId);
     }
 }

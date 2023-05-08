@@ -2,12 +2,15 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.time.Month.DECEMBER;
@@ -50,8 +53,22 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Integer, Film> getFilms() {
-        return mapFilms;
+    public Film getFilmById(int filmId) {
+        if (checkFilm(filmId)) {
+            return mapFilms.get(filmId);
+        } else {
+            throw new NotFoundException("Фильм не найден");
+        }
+    }
+
+    @Override
+    public List<Film> getFilms() {
+        return new ArrayList<>(mapFilms.values());
+    }
+
+    @Override
+    public boolean checkFilm(int id) {
+        return mapFilms.containsKey(id);
     }
 
     private boolean isValidation(Film film) throws ValidationException {

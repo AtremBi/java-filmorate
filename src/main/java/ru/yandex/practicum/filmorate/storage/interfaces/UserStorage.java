@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.interfaces;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Map;
+import java.util.List;
 
 @Component
 public interface UserStorage {
@@ -11,5 +11,9 @@ public interface UserStorage {
 
     User updateUser(User user);
 
-    Map<Integer, User> getUsers();
+    List<User> getUsers();
+
+    boolean checkUser(int id);
+
+    User getUserById(int id);
 }
