@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -24,16 +26,32 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        return storage.addUser(user);
+        if (validation(user)) {
+            return storage.addUser(user);
+        } else {
+            throw new ValidationException();
+        }
     }
 
     public User updateUser(User user) {
-        return storage.updateUser(user);
+        if (validation(user)) {
+            if (storage.checkUser(user.getId())) {
+                return storage.updateUser(user);
+            } else {
+                throw new ValidationException();
+            }
+        } else {
+            throw new ValidationException();
+        }
     }
 
 
     public User getUserById(int id) {
-        return storage.getUserById(id);
+        if (storage.checkUser(id)) {
+            return storage.getUserById(id);
+        } else {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 
     public List<User> getFriends(int id) {
@@ -96,5 +114,18 @@ public class UserService {
 
     private boolean checkUserAndFriend(int id, int otherId) {
         return storage.checkUser(id) && storage.checkUser(otherId);
+    }
+
+    private boolean validation(User user) throws NullPointerException {
+        if (user.getBirthday().isBefore(LocalDate.now()) && user.getEmail().contains("@")
+                && !user.getLogin().isBlank()) {
+            if (user.getName().isBlank()) {
+                user.setName(user.getLogin());
+            }
+            log.info("Пользователь обновлен/создан {}", user);
+            return true;
+        } else {
+            throw new ValidationException();
+        }
     }
 }

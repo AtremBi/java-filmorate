@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.time.Month.DECEMBER;
 
 @Slf4j
 @Service
@@ -21,15 +25,31 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        return storage.addFilm(film);
+        if (isValidation(film)) {
+            return storage.addFilm(film);
+        } else {
+            throw new ValidationException();
+        }
     }
 
     public Film updateFilm(Film film) {
-        return storage.updateFilm(film);
+        if (isValidation(film)) {
+            if (storage.checkFilm(film.getId())) {
+                return storage.updateFilm(film);
+            } else {
+                throw new ValidationException();
+            }
+        } else {
+            throw new ValidationException();
+        }
     }
 
     public Film getFilmById(int filmId) {
-        return storage.getFilmById(filmId);
+        if (storage.checkFilm(filmId)) {
+            return storage.getFilmById(filmId);
+        } else {
+            throw new NotFoundException("Фильм не найден");
+        }
     }
 
     public Film addLike(int filmId, int userId) {
@@ -67,5 +87,15 @@ public class FilmService {
 
     private boolean checkFilmAndLike(int id, int userId) {
         return storage.checkFilm(id) && storage.checkFilm(userId);
+    }
+
+    private boolean isValidation(Film film) throws ValidationException {
+        if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
+                film.getDescription().length() <= 200 &&
+                film.getDuration() > 0) {
+            return true;
+        } else {
+            throw new ValidationException();
+        }
     }
 }
