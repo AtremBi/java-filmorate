@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
+import ru.yandex.practicum.filmorate.enums.FriendStatus;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -26,4 +27,5 @@ public class User {
     @Past
     private LocalDate birthday;
     private final Set<Integer> friends = new HashSet<>();
+    private final Enum<FriendStatus> status;
 }
