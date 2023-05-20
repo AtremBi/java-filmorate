@@ -1,68 +1,53 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controllers.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static java.time.Month.DECEMBER;
 
 @Slf4j
 @RestController
+@RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
-    private int id;
-    private Map<Integer, Film> mapFilms = new HashMap<>();
+    private final FilmService filmService;
 
-    @GetMapping("/films")
+    @GetMapping
     public List<Film> getFilms() {
-        return new ArrayList<>(mapFilms.values());
+        return filmService.getFilms();
     }
 
-    @PostMapping("/films")
+    @GetMapping("/{filmId}")
+    public Film getFilmById(@PathVariable int filmId) {
+        return filmService.getFilmById(filmId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count) {
+        return filmService.getFamousFilms(count);
+    }
+
+    @PostMapping
     public Film postFilm(@Valid @RequestBody Film film) {
-        if (isValidation(film)) {
-            if (!mapFilms.containsKey(film.getId())) {
-                id++;
-                film.setId(id);
-                mapFilms.put(film.getId(), film);
-                log.info("Фильм обновлен/создан {}", film);
-                return mapFilms.get(film.getId());
-            } else {
-                throw new ValidationException();
-            }
-        } else {
-            throw new ValidationException();
-        }
+        return filmService.addFilm(film);
     }
 
-    @PutMapping("/films")
+    @PutMapping
     public Film putFilm(@Valid @RequestBody Film film) {
-        if (isValidation(film)) {
-            if (mapFilms.containsKey(film.getId())) {
-                mapFilms.put(film.getId(), film);
-                return mapFilms.get(film.getId());
-            } else {
-                throw new ValidationException();
-            }
-        } else {
-            throw new ValidationException();
-        }
+        return filmService.updateFilm(film);
     }
 
-    private boolean isValidation(Film film) throws ValidationException {
-        if (film.getReleaseDate().isAfter(LocalDate.of(1895, DECEMBER, 28)) &&
-                film.getDescription().length() <= 200 &&
-                film.getDuration() > 0) {
-            return true;
-        } else {
-            throw new ValidationException();
-        }
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable int id, @PathVariable int userId) {
+        return filmService.deleteLike(id, userId);
     }
 }
