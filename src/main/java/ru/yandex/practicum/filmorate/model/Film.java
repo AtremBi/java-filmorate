@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import ru.yandex.practicum.filmorate.enums.Genre;
-import ru.yandex.practicum.filmorate.enums.Rate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -24,6 +22,4 @@ public class Film {
     @Positive
     private Integer duration;
     private final Set<Integer> likes = new HashSet<>();
-    private final Set<Enum<Genre>> genre = new HashSet<>();
-    private final Set<Enum<Rate>> rate = new HashSet<>();
 }
