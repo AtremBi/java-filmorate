@@ -1,32 +1,39 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import org.apache.commons.lang3.RandomStringUtils;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 
-import static java.time.Month.DECEMBER;
-import static org.junit.Assert.*;
+import static java.util.Calendar.DECEMBER;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmControllerTest {
     private Film film;
-    private FilmController filmController;
+    private final FilmController filmController;
 
     @BeforeEach
     public void setUp() {
-        InMemoryFilmStorage storage = new InMemoryFilmStorage();
-        FilmService service = new FilmService(storage);
-        filmController = new FilmController(service);
         film = Film.builder()
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2007, 9, 1))
                 .duration(100)
+                .mpa(Mpa.builder().id(1).build())
                 .build();
     }
 
