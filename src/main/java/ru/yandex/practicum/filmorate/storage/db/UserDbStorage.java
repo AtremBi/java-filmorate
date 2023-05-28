@@ -74,9 +74,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void deleteFriend(int userId, int friend_id) {
+    public void deleteFriend(int userId, int friendId) {
         String sql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?;";
-        jdbcTemplate.update(sql, userId, friend_id);
+        jdbcTemplate.update(sql, userId, friendId);
     }
 
     private Integer mapRowToFriedIdFromFriends(ResultSet resultSet, int rowNum) throws SQLException {
