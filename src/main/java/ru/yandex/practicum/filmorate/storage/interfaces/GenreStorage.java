@@ -4,6 +4,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface GenreStorage {
 
@@ -11,9 +13,11 @@ public interface GenreStorage {
 
     List<Genre> getAllGenre();
 
-    List<Integer> getGenreIdByFilm(Film film);
+    Set<Genre> getGenreByFilm(Film film);
 
     void createFilmGenre(Film film);
 
     void deleteFilmGenre(Film film);
+
+    Map<Integer, Integer> getAllFilmGenre();
 }

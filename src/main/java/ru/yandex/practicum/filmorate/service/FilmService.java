@@ -8,11 +8,10 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.db.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.db.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,30 +21,23 @@ import static java.time.Month.DECEMBER;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final GenreDbStorage genreDbStorage;
-    private final MpaDbStorage mpaDbStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("genreDbStorage") GenreDbStorage genreDbStorage,
-                       @Qualifier("mpaDbStorage") MpaDbStorage mpaDbStorage) {
+                       @Qualifier("genreDbStorage") GenreDbStorage genreStorage) {
         this.filmStorage = filmStorage;
-        this.genreDbStorage = genreDbStorage;
-        this.mpaDbStorage = mpaDbStorage;
+        this.genreStorage = genreStorage;
     }
 
     public List<Film> getFilms() {
-        List<Film> films = new ArrayList<>();
-        for (Film filmDb : filmStorage.getFilms()) {
-            films.add(filmBuild(filmDb));
-        }
-        return films;
+        return filmStorage.getFilms();
     }
 
     public Film addFilm(Film film) {
         if (isValidation(film)) {
             filmStorage.addFilm(film);
-            return filmBuild(film);
+            return film;
         } else {
             throw new ValidationException();
         }
@@ -54,8 +46,8 @@ public class FilmService {
     public Film updateFilm(Film film) {
         if (isValidation(film)) {
             if (filmStorage.checkFilm(film.getId())) {
-                genreDbStorage.deleteFilmGenre(film);
-                return filmBuild(filmStorage.updateFilm(film));
+                genreStorage.deleteFilmGenre(film);
+                return filmStorage.updateFilm(film);
             } else {
                 throw new NotFoundException("Фильм не найден");
             }
@@ -64,27 +56,11 @@ public class FilmService {
         }
     }
 
-    private Film filmBuild(Film film) {
-        Film filmDb = filmStorage.getFilmById(film.getId());
-        if (genreDbStorage.getGenreById(film.getId()) != null) {
-            genreDbStorage.createFilmGenre(film);
-            for (Integer genre : genreDbStorage.getGenreIdByFilm(film)) {
-                filmDb.getGenres().add(genreDbStorage.getGenreById(genre));
-            }
-        }
-        filmDb.setMpa(mpaDbStorage.getMpaById(film.getMpa().getId()));
-        if (filmStorage.getLikesByFilmId(film.getId()) != null) {
-            for (Integer like : filmStorage.getLikesByFilmId(film.getId())) {
-                filmDb.getLikes().add(like);
-            }
-        }
-        return filmDb;
-    }
 
     public Film getFilmById(int filmId) {
-        if (filmStorage.checkFilm(filmId)) {
-            return filmBuild(filmStorage.getFilmById(filmId));
-        } else {
+        try {
+            return filmStorage.getFilmById(filmId);
+        } catch (Exception e) {
             throw new NotFoundException("Фильм не найден");
         }
     }
@@ -93,7 +69,7 @@ public class FilmService {
         if (filmStorage.checkFilm(filmId)) {
             filmStorage.addLike(userId, filmId);
             log.info("Добавлен лайк от - {} фильму - {}", userId, filmId);
-            return filmBuild(filmStorage.getFilmById(filmId));
+            return filmStorage.getFilmById(filmId);
         } else {
             throw new NotFoundException("Фильм не найден");
         }
@@ -103,7 +79,7 @@ public class FilmService {
         if (checkFilmAndLike(filmId, userId)) {
             filmStorage.deleteLike(userId, filmId);
             log.info("Удален лайк - {} у фильму - {}", userId, filmId);
-            return filmBuild(filmStorage.getFilmById(filmId));
+            return filmStorage.getFilmById(filmId);
         } else if (!filmStorage.checkFilm(filmId)) {
             throw new NotFoundException("Фильм не найден");
         } else {

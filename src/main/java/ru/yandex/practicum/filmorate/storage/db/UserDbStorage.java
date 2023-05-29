@@ -10,7 +10,10 @@ import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component("userDbStorage")
@@ -22,7 +25,7 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users").usingGeneratedKeyColumns("id");
-        user.setId(simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue());
+        user.setId(simpleJdbcInsert.executeAndReturnKey(toMap(user)).intValue());
         log.info("В базу добавлен новый пользователь. id - {}", user.getId());
         return getUserById(user.getId());
     }
@@ -38,7 +41,7 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
         log.info("Пользователь обновлен. id - {}", user.getId());
-        return getUserById(user.getId());
+        return user;
     }
 
     @Override
@@ -68,7 +71,22 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<Integer> getFriends(User user) {
+    public List<User> getFriendsList(Integer id) {
+        String sqlQuery =
+                "SELECT \n" +
+                        "u.id , \n" +
+                        "u.email,\n" +
+                        "u.login,\n" +
+                        "u.name, \n" +
+                        "u.birthday,\n" +
+                        "FROM users u \n" +
+                        "JOIN friends f ON f.user_id  = ?\n" +
+                        "WHERE u.id  = f.FRIEND_ID ;";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUsers, id);
+    }
+
+    @Override
+    public List<Integer> getFriendsId(User user) {
         String sqlQuery = "SELECT friend_id FROM friends WHERE user_id = ?;";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFriedIdFromFriends, user.getId());
     }
@@ -84,12 +102,23 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User mapRowToUsers(ResultSet resultSet, int rowNum) throws SQLException {
-        return User.builder()
+        User user = User.builder()
                 .id(resultSet.getInt("id"))
                 .email(resultSet.getString("email"))
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
+        user.setFriends(new HashSet<>(getFriendsId(user)));
+        return user;
+    }
+
+    public Map<String, Object> toMap(User user) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", user.getEmail());
+        values.put("login", user.getLogin());
+        values.put("name", user.getName());
+        values.put("birthday", user.getBirthday());
+        return values;
     }
 }
