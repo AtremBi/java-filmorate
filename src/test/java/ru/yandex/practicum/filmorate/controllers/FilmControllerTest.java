@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 import static java.util.Calendar.DECEMBER;
