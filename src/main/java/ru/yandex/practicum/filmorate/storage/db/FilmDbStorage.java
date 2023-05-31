@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -28,11 +30,10 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(simpleJdbcInsert.executeAndReturnKey(toMapFilms(film)).intValue());
         genreStorage.createFilmGenre(film);
 
-        film.setGenres(genreStorage.getGenreByFilm(film));
-        film.setLikes(getLikesByFilmId(film.getId()));
+        film.getGenres().clear();
         film.setMpa(getFilmById(film.getId()).getMpa());
         log.info("В базу добавлен фильм. id - {}", film.getId());
-        return film;
+        return setLikesInFilm(List.of(film)).get(0);
     }
 
     @Override
@@ -47,11 +48,10 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId());
         genreStorage.createFilmGenre(film);
-        film.setGenres(genreStorage.getGenreByFilm(film));
-        film.setLikes(getLikesByFilmId(film.getId()));
+
         film.setMpa(getFilmById(film.getId()).getMpa());
         log.info("В базе обновлен фильм с id {}", film.getId());
-        return film;
+        return getFilmById(film.getId());
     }
 
     @Override
@@ -66,16 +66,39 @@ public class FilmDbStorage implements FilmStorage {
                         "m.NAME as MPA_NAME\n" +
                         "FROM FILMS f \n" +
                         "JOIN MPA m ON f.MPA_ID  = m.ID";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilms);
+        return setLikesInFilm(jdbcTemplate.query(sqlQuery, this::mapRowToFilms));
     }
 
     @Override
-    public boolean checkFilm(int id) {
+    public boolean checkFilmExistInBd(int id) {
         String sqlQuery =
                 "SELECT id\n" +
                         "FROM FILMS \n" +
                         "WHERE ID = ?;";
         return !jdbcTemplate.query(sqlQuery, this::mapFilmId, id).isEmpty();
+    }
+
+    @Override
+    public List<Film> setLikesInFilm(List<Film> films) {
+        List<Integer> filmIds = new ArrayList<>();
+        films.forEach(film -> filmIds.add(film.getId()));
+        String sql =
+                "SELECT \n" +
+                        "f.id , \n" +
+                        "l.user_id\n" +
+                        "FROM FILMS f \n" +
+                        "JOIN LIKES l ON f.ID  = l.FILM_ID \n" +
+                        "where f.ID  IN (" + StringUtils.join(filmIds, ',') + ")" +
+                        "order by user_id asc;";
+        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql);
+        while (genreRows.next()) {
+            for (Film film : films) {
+                if (film.getId() == genreRows.getInt("id")) {
+                    film.getLikes().add(genreRows.getInt("user_id"));
+                }
+            }
+        }
+        return films;
     }
 
     @Override
@@ -91,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
                         "FROM FILMS f \n" +
                         "JOIN MPA m ON f.MPA_ID  = m.ID\n" +
                         "WHERE f.ID = ?;";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilms, filmId).get(0);
+        return setLikesInFilm(List.of(jdbcTemplate.query(sqlQuery, this::mapRowToFilms, filmId).get(0))).get(0);
     }
 
     @Override
@@ -132,8 +155,6 @@ public class FilmDbStorage implements FilmStorage {
                         .name(resultSet.getString("mpa_name"))
                         .build())
                 .build();
-        film.setGenres(genreStorage.getGenreByFilm(film));
-        film.setLikes(getLikesByFilmId(film.getId()));
         return film;
     }
 

@@ -13,7 +13,7 @@ public interface UserStorage {
 
     List<User> getUsers();
 
-    boolean checkUser(int id);
+    boolean checkUserExistInBd(int id);
 
     User getUserById(int id);
 

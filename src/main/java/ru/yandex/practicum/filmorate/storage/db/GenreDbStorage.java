@@ -1,16 +1,19 @@
 package ru.yandex.practicum.filmorate.storage.db;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
+@Slf4j
 @Component("genreDbStorage")
 @RequiredArgsConstructor
 public class GenreDbStorage implements GenreStorage {
@@ -27,27 +30,37 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
+    public List<Film> setGenreInFilm(List<Film> films) {
+        List<Integer> filmIds = new ArrayList<>();
+        films.forEach(film -> filmIds.add(film.getId()));
+        String sql =
+                "SELECT \n" +
+                        "fg.film_id, \n" +
+                        "g.id, \n" +
+                        "g.name \n" +
+                        "FROM GENRE g  \n" +
+                        "JOIN FILM_GENRE fg ON fg.GENRE_ID = g.ID \n" +
+                        "where fg.film_Id IN (" + StringUtils.join(filmIds, ',') + ")" +
+                        "ORDER BY g.id asc;;";
+
+        SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql);
+        while (genreRows.next()) {
+            log.info("строка - {}", genreRows.getRow());
+            for (Film film : films) {
+                if (film.getId() == genreRows.getInt("film_id")) {
+                    film.getGenres().add(Genre.builder()
+                            .id(genreRows.getInt("id"))
+                            .name(genreRows.getString("name")).build());
+                }
+            }
+        }
+        return films;
+    }
+
+    @Override
     public List<Genre> getAllGenre() {
         String sqlQuery = "SELECT * FROM genre GROUP BY ID ORDER BY ID ASC;";
         return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
-    }
-
-    @Override
-    public Map<Integer, Integer> getAllFilmGenre() {
-        String sqlQuery = "SELECT * FROM film_genre;";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenreIdFromFilmGenre);
-    }
-
-    @Override
-    public Set<Genre> getGenreByFilm(Film film) {
-        String sqlQuery =
-                "SELECT g.ID ,\n" +
-                        "g.NAME \n" +
-                        "FROM GENRE g\n" +
-                        "JOIN film_genre fg ON fg.GENRE_ID = g.ID \n" +
-                        "WHERE fg.film_id = ? \n " +
-                        "GROUP BY ID ORDER BY ID ASC;";
-        return new HashSet<>(jdbcTemplate.query(sqlQuery, this::mapRowToGenre, film.getId()));
     }
 
     @Override
@@ -64,12 +77,6 @@ public class GenreDbStorage implements GenreStorage {
     public void deleteFilmGenre(Film film) {
         String sql = "DELETE FROM film_genre WHERE film_id = ?;";
         jdbcTemplate.update(sql, film.getId());
-    }
-
-    private Map<Integer, Integer> mapRowToGenreIdFromFilmGenre(ResultSet resultSet, int rowNum) throws SQLException {
-        Map<Integer, Integer> map = new HashMap<>();
-        map.put(resultSet.getInt("genre_id"), resultSet.getInt("film_id"));
-        return map;
     }
 
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {

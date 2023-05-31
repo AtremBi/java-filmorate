@@ -18,18 +18,17 @@ public class GenreControllerTest {
     private final GenreController genreController;
 
     @Test
-    public void getAllGenre_get_not_empty_list_genres_from_db() {
-        //Список наоборот не пустой
+    public void getNotEmptyListGenres_callMethodGetAllGenre() {
         Assertions.assertFalse(genreController.getAllGenre().isEmpty());
     }
 
     @Test
-    public void getGenreById_get_genre_by_id_from_db() {
+    public void getGenreById_callMethodGetGenreById() {
         Assertions.assertEquals(Genre.builder().id(2).name("Драма").build(), genreController.getGenreById(2));
     }
 
     @Test
-    public void getNotFoundException_get_exception_by_search_genre_with_unknown_id() {
+    public void getNotFoundException_callMethodGetGenreById() {
         Assertions.assertThrows(NotFoundException.class, () -> genreController.getGenreById(9));
     }
 }

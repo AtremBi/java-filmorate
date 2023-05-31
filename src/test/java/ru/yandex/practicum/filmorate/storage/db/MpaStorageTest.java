@@ -18,18 +18,17 @@ public class MpaStorageTest {
     private final MpaDbStorage mpaDbStorage;
 
     @Test
-    public void getAllMpa_get_not_empty_list_mpa_from_db() {
+    public void getAllMpa_callMethodGetAllMpa() {
         Assertions.assertEquals(5, mpaDbStorage.getAllMpa().size());
     }
 
     @Test
-    public void getMpaById_get_mpa_by_id_from_db() {
+    public void getMpaById_mpaExistInBd() {
         Assertions.assertEquals(Mpa.builder().id(2).name("PG").build(), mpaDbStorage.getMpaById(2));
     }
 
     @Test
-    public void getEmptyResultDataAccessException_get_exception_by_search_mpa_with_unknown_id() {
-//        mpaDbStorage.getMpaById(9);
+    public void getNotFoundException_mpaNotExistInBd() {
         Assertions.assertThrows(EmptyResultDataAccessException.class, () -> mpaDbStorage.getMpaById(9));
     }
 }

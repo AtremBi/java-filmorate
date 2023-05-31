@@ -18,17 +18,17 @@ public class MpaControllerTest {
     private final MpaController controller;
 
     @Test
-    public void getAllMpa_get_not_empty_list_mpa_from_db() {
+    public void getAllMpa_callMethodGetAllMpa() {
         Assertions.assertFalse(controller.getAllMpa().isEmpty());
     }
 
     @Test
-    public void getMpaById_get_mpa_by_id_from_db() {
+    public void getMpaById_mpaExistInBd() {
         Assertions.assertEquals(Mpa.builder().id(2).name("PG").build(), controller.getMpaById(2));
     }
 
     @Test
-    public void getNotFoundException_get_exception_by_search_mpa_with_unknown_id() {
+    public void getNotFoundException_mpaNotExistInBd() {
         Assertions.assertThrows(NotFoundException.class, () -> controller.getMpaById(9));
     }
 }

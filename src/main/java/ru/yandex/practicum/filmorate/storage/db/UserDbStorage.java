@@ -51,7 +51,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean checkUser(int id) {
+    public boolean checkUserExistInBd(int id) {
         String sqlQuery = "select id, email, login, name, birthday " +
                 "FROM users WHERE id = ?;";
         return !jdbcTemplate.query(sqlQuery, this::mapRowToUsers, id).isEmpty();

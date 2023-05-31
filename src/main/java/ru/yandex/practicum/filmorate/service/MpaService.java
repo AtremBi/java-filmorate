@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -11,13 +10,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class MpaService {
     private final MpaDbStorage mpaDbStorage;
-
-    @Autowired
-    public MpaService(@Qualifier("mpaDbStorage") MpaDbStorage mpaDbStorage) {
-        this.mpaDbStorage = mpaDbStorage;
-    }
 
     public Mpa getMpaById(int id) {
         try {

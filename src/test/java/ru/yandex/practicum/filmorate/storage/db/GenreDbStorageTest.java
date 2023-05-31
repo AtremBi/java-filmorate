@@ -18,17 +18,17 @@ public class GenreDbStorageTest {
     private final GenreDbStorage genreDbStorage;
 
     @Test
-    public void getAllGenre_get_not_empty_list_genres_from_db() {
+    public void getNotEmptyListGenres_callMethodGetAllGenre() {
         Assertions.assertFalse(genreDbStorage.getAllGenre().isEmpty());
     }
 
     @Test
-    public void getGenreById_get_genre_by_id_from_db() {
+    public void getGenreById_callMethodGetGenreById() {
         Assertions.assertEquals(Genre.builder().id(2).name("Драма").build(), genreDbStorage.getGenreById(2));
     }
 
     @Test
-    public void getNotFoundException_get_exception_by_search_genre_with_unknown_id() {
+    public void getNotFoundException_callMethodGetGenreById() {
         Assertions.assertThrows(EmptyResultDataAccessException.class, () -> genreDbStorage.getGenreById(9));
     }
 }

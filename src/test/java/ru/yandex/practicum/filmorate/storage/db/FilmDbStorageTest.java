@@ -34,8 +34,6 @@ public class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(1999, 8, 17))
                 .duration(136)
                 .build();
-        film.setGenres(new HashSet<>());
-        film.setLikes(new HashSet<>());
         film.setMpa(Mpa.builder()
                 .id(1)
                 .name("NC-17")
@@ -50,13 +48,13 @@ public class FilmDbStorageTest {
     }
 
     @Test
-    public void addFilm_add_correct_film_in_bd() {
+    public void addFilm_filmValid() {
         filmDbStorage.addFilm(film);
-        Assertions.assertTrue(filmDbStorage.checkFilm(film.getId()));
+        Assertions.assertTrue(filmDbStorage.checkFilmExistInBd(film.getId()));
     }
 
     @Test
-    public void updateFilm_correct_update_from_db() {
+    public void updateFilm_filmValid() {
         filmDbStorage.addFilm(film);
         film.setName("newName");
         film.setId(1);
@@ -67,7 +65,7 @@ public class FilmDbStorageTest {
     }
 
     @Test
-    public void likeAndDeleteLike_add_like_and_delete_like_correct_result() {
+    public void addLikeAndDeleteLike_validIds() {
         filmDbStorage.addFilm(film);
         userDbStorage.addUser(user);
         filmDbStorage.addLike(1, 1);

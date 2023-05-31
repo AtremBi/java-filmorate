@@ -14,13 +14,15 @@ public interface FilmStorage {
 
     List<Film> getFilms();
 
-    boolean checkFilm(int id);
+    boolean checkFilmExistInBd(int id);
 
     Film getFilmById(int id);
 
     void addLike(int userId, int filmId);
 
     void deleteLike(int userId, int filmId);
+
+    List<Film> setLikesInFilm(List<Film> films);
 
     Set<Integer> getLikesByFilmId(int filmId);
 }

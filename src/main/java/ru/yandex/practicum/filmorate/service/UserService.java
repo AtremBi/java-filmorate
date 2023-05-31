@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -14,13 +13,9 @@ import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage storage;
-
-    @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
-        this.storage = storage;
-    }
 
     public List<User> getUsers() {
         return storage.getUsers();
@@ -36,7 +31,7 @@ public class UserService {
 
     public User updateUser(User user) {
         if (validation(user)) {
-            if (storage.checkUser(user.getId())) {
+            if (storage.checkUserExistInBd(user.getId())) {
                 return storage.updateUser(user);
             } else {
                 throw new NotFoundException("Пользователь не найден");
@@ -48,7 +43,7 @@ public class UserService {
 
 
     public User getUserById(int id) {
-        if (storage.checkUser(id)) {
+        if (storage.checkUserExistInBd(id)) {
             return storage.getUserById(id);
         } else {
             throw new NotFoundException("Пользователь не найден");
@@ -56,7 +51,7 @@ public class UserService {
     }
 
     public List<User> getFriends(int id) {
-        if (storage.checkUser(id)) {
+        if (storage.checkUserExistInBd(id)) {
             return storage.getFriendsList(id);
         } else {
             throw new NotFoundException("Друг не найден");
@@ -96,7 +91,7 @@ public class UserService {
     }
 
     private boolean checkUserAndFriend(int id, int otherId) {
-        return storage.checkUser(id) && storage.checkUser(otherId);
+        return storage.checkUserExistInBd(id) && storage.checkUserExistInBd(otherId);
     }
 
     private boolean validation(User user) throws NullPointerException {

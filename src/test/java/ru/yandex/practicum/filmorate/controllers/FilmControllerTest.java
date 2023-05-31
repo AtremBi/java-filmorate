@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import static java.util.Calendar.DECEMBER;
@@ -38,44 +39,44 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void name_cannot_be_empty() {
+    public void getNullPointerException_nameCannotBeEmpty() {
         assertThrows(NullPointerException.class, () -> film.setName(null));
     }
 
     @Test
-    public void length_description_200_symbols_is_valid() {
+    public void lengthDescription200Symbols_isValid() {
         film.setDescription(RandomStringUtils.random(200));
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void length_description_201_symbols_is_not_valid() {
+    public void lengthDescription201symbols_isNotValid() {
         film.setDescription(RandomStringUtils.random(201));
         assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test
-    public void release_date_1895_not_valid() {
+    public void releaseDate1895_notValid() {
         film.setReleaseDate(LocalDate.of(1895, DECEMBER, 28));
         assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test
-    public void release_date_1896_is_valid() {
+    public void releaseDate1896_isValid() {
         film.setReleaseDate(LocalDate.of(1896, DECEMBER, 28));
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());
     }
 
     @Test
-    public void duration_is_negative_not_valid() {
+    public void durationIsNegative_notValid() {
         film.setDuration(-1);
         assertThrows(ValidationException.class, () -> filmController.postFilm(film));
     }
 
     @Test
-    public void duration_is_negative_is_valid() {
+    public void durationIsNegative_isValid() {
         film.setDuration(1);
         filmController.postFilm(film);
         assertFalse(filmController.getFilms().isEmpty());

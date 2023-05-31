@@ -34,37 +34,37 @@ public class UserControllerTest {
     }
 
     @Test
-    public void email_without_dog_not_valid() {
+    public void getValidationException_emailWithoutDog() {
         user.setEmail("12323");
         assertThrows(ValidationException.class, () -> userController.postUser(user));
     }
 
     @Test
-    public void email_with_dog_is_valid() {
+    public void userCreate_emailWithDog() {
         userController.postUser(user);
         assertFalse(userController.getUsers().isEmpty());
     }
 
     @Test
-    public void email_is_empty_not_valid() {
+    public void userNotCreate_emptyEmail() {
         assertThrows(NullPointerException.class, () -> user.setEmail(null));
     }
 
     @Test
-    public void login_with_whitespace_not_valid() {
+    public void userNotCreate_loginWithWhitespace() {
         user.setLogin("asd asd");
         assertTrue(userController.getUsers().isEmpty());
     }
 
     @Test
-    public void empty_name_is_replaced_with_a_login() {
+    public void nameIsReplacedOnLogin_emptyName() {
         user.setName("");
         userController.postUser(user);
         assertEquals(user.getLogin(), userController.getUsers().get(0).getName());
     }
 
     @Test
-    public void date_of_birth_cannot_be_in_the_future() {
+    public void userNotCreate_dateOfBirthInTheFuture() {
         user.setBirthday(LocalDate.of(2895, DECEMBER, 28));
         assertThrows(ValidationException.class, () -> userController.postUser(user));
     }

@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.db.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
@@ -19,25 +17,18 @@ import static java.time.Month.DECEMBER;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreStorage genreStorage;
 
-    @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("genreDbStorage") GenreDbStorage genreStorage) {
-        this.filmStorage = filmStorage;
-        this.genreStorage = genreStorage;
-    }
-
     public List<Film> getFilms() {
-        return filmStorage.getFilms();
+        return genreStorage.setGenreInFilm(filmStorage.getFilms());
     }
 
     public Film addFilm(Film film) {
         if (isValidation(film)) {
-            filmStorage.addFilm(film);
-            return film;
+            return genreStorage.setGenreInFilm(List.of(filmStorage.addFilm(film))).get(0);
         } else {
             throw new ValidationException();
         }
@@ -45,9 +36,9 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         if (isValidation(film)) {
-            if (filmStorage.checkFilm(film.getId())) {
+            if (filmStorage.checkFilmExistInBd(film.getId())) {
                 genreStorage.deleteFilmGenre(film);
-                return filmStorage.updateFilm(film);
+                return genreStorage.setGenreInFilm(List.of(filmStorage.updateFilm(film))).get(0);
             } else {
                 throw new NotFoundException("Фильм не найден");
             }
@@ -56,31 +47,30 @@ public class FilmService {
         }
     }
 
-
     public Film getFilmById(int filmId) {
         try {
-            return filmStorage.getFilmById(filmId);
+            return genreStorage.setGenreInFilm(List.of(filmStorage.getFilmById(filmId))).get(0);
         } catch (Exception e) {
             throw new NotFoundException("Фильм не найден");
         }
     }
 
     public Film addLike(int filmId, int userId) {
-        if (filmStorage.checkFilm(filmId)) {
+        if (filmStorage.checkFilmExistInBd(filmId)) {
             filmStorage.addLike(userId, filmId);
             log.info("Добавлен лайк от - {} фильму - {}", userId, filmId);
-            return filmStorage.getFilmById(filmId);
+            return genreStorage.setGenreInFilm(List.of(filmStorage.getFilmById(filmId))).get(0);
         } else {
             throw new NotFoundException("Фильм не найден");
         }
     }
 
     public Film deleteLike(int filmId, int userId) {
-        if (checkFilmAndLike(filmId, userId)) {
+        if (checkFilmAndLikeInExistInDb(filmId, userId)) {
             filmStorage.deleteLike(userId, filmId);
             log.info("Удален лайк - {} у фильму - {}", userId, filmId);
-            return filmStorage.getFilmById(filmId);
-        } else if (!filmStorage.checkFilm(filmId)) {
+            return genreStorage.setGenreInFilm(List.of(filmStorage.getFilmById(filmId))).get(0);
+        } else if (!filmStorage.checkFilmExistInBd(filmId)) {
             throw new NotFoundException("Фильм не найден");
         } else {
             throw new NotFoundException("Пользователь не найден");
@@ -98,8 +88,8 @@ public class FilmService {
         }
     }
 
-    private boolean checkFilmAndLike(int id, int userId) {
-        return filmStorage.checkFilm(id) && filmStorage.checkFilm(userId);
+    private boolean checkFilmAndLikeInExistInDb(int id, int userId) {
+        return filmStorage.checkFilmExistInBd(id) && filmStorage.checkFilmExistInBd(userId);
     }
 
     private boolean isValidation(Film film) throws ValidationException {

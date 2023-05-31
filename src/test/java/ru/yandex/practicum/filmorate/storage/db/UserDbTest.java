@@ -41,13 +41,13 @@ public class UserDbTest {
     }
 
     @Test
-    public void addUser_correct_create_user_in_db() {
+    public void createUser_validFields() {
         userDbStorage.addUser(user);
         Assertions.assertEquals(1, userDbStorage.getUserById(1).getId());
     }
 
     @Test
-    public void updateUser_correct_update_user_in_bd() {
+    public void updateUser_validFields() {
         userDbStorage.addUser(user);
         user.setName("newName");
         user.setId(1);
@@ -58,7 +58,7 @@ public class UserDbTest {
     }
 
     @Test
-    void saveAndDeleteFriends_correct_save_and_delete_friend_in_bd() {
+    void saveAndDeleteFriends_validIds() {
         userDbStorage.addUser(user);
         userDbStorage.addUser(friend);
         userDbStorage.addFriend(user.getId(), friend.getId());
