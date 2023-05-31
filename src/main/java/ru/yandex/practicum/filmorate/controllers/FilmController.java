@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -28,7 +27,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count) throws SQLException {
+    public List<Film> getPopularFilm(@RequestParam(name = "count", defaultValue = "10") int count) {
         return filmService.getFamousFilms(count);
     }
 
