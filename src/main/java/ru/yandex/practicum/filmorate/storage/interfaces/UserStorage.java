@@ -13,7 +13,15 @@ public interface UserStorage {
 
     List<User> getUsers();
 
-    boolean checkUser(int id);
+    boolean checkUserExistInBd(int id);
 
     User getUserById(int id);
+
+    void addFriend(int userId, int friendId);
+
+    List<Integer> getFriendsId(User user);
+
+    List<User> getFriendsList(Integer userId);
+
+    void deleteFriend(int userId, int friendId);
 }
